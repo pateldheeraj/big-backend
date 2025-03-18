@@ -2,14 +2,18 @@
   "name": "backend_project",
   "version": "1.0.0",
   "description": "This is my project",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "test dheeraj"
+    "dev": "nodemon src/index.js"
   },
   "keywords": [
     "javascript",
     "backend"
   ],
   "author": "Dheeraj Patel",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
 }
