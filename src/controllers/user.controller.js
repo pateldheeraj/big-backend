@@ -4,6 +4,7 @@ import {User} from "../models/user.model.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
+import mongoose from "mongoose"
 
 const generateAccessAndRefershToken =  async(userId) => {
         const user = await User.findById(userId)
@@ -122,14 +123,14 @@ const loginUser = asyncHandler ( async ( req, res ) => {
 const logoutUser = asyncHandler( async (req, res) => {
     await User.findByIdAndUpdate(req.user._id,
         {
-            $set : {accessToken : undefined}
+            $unset : {refreshToken : 1}
             
         },
         {
             new : true
         }
     )
-
+ 
     const options = {
         httpOnly: true,
         secure: true
@@ -157,7 +158,8 @@ const refreshAccessToken = asyncHandler( async (req, res) => {
     if (!user) {
         throw new ApiError(401, "Invalid refresh token")
     }
-
+     console.log(user,incomingRefreshToken,user.refreshToken);
+     
     if (incomingRefreshToken !== user?.refreshToken) {
         throw new ApiError(401, "Refresh token is expired or used")
     }
@@ -184,7 +186,7 @@ const changeCurrentPassword = asyncHandler( async (req, res) => {
 
     const user = await User.findById(req.user?._id)
 
-    isPasswordTrue = await user.isPasswordCorrect(oldPassword)
+    const isPasswordTrue = await user.isPasswordCorrect(oldPassword)
 
     if (!isPasswordTrue) {
         throw new ApiError(400 , "Inavlid Old Password")
@@ -219,8 +221,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
             email
         }
     }
-    ,{new :true}).select("-password")
-
+    ,{new :true}).select("-password -refreshToken")
+    
     return res
     .status(200)
     .json(new ApiResponse(200, user , "Account deatils Succesfully"))
