@@ -39,13 +39,13 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 })
 
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    const {channelId} = req.params
+    const channelId = req.user?._id
 
     if (!isValidObjectId(channelId)) {
         throw new ApiError(404,"Invalid ChannelID")
     }
 
-    const subscriberDocs = await Subscription.findOne({channel : channelId}).populate("subscriber","_id name email")
+    const subscriberDocs = await Subscription.find({channel : channelId}).populate("subscriber","_id fullName email")
 
     if(!subscriberDocs){
         throw new ApiError(404,"Unable to find Subscribers")
@@ -57,13 +57,13 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 })
 
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params
+    const subscriberId = req.user?._id
 
     if (!isValidObjectId(subscriberId)) {
         throw new ApiError(404,"Invalid SUbscriberId")
     }
 
-    const subscriberDocs = await Subscription.findOne({subscriber : subscriberId}).populate("channel","_id name email")
+    const subscriberDocs = await Subscription.find({subscriber : subscriberId}).populate("channel","_id fullName email")
 
     if(!subscriberDocs){
         throw new ApiError(404,"Channel list not found")
